@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>WEB-PROGRAMOZÁS I – Regisztráció</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #99f;
+      font-family: sans-serif;
+    }
+    /* bal felső sarok: neved és Neptun kódod */
+    #header {
+      position: absolute;
+      top: 0; left: 0;
+      padding: 0.5em;
+      font-weight: bold;
+    }
+    /* a kép, háttérben */
+    #bg {
+      position: fixed;
+      right: 1em;
+      top: 5em;
+      width: 200px;
+      border: 3px solid #fff;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    /* a form kerete */
+    #regForm {
+      position: relative;
+      margin: 5em auto 2em;
+      padding: 2em 1em 1em;
+      width: 320px;
+      background: rgba(255,255,255,0.8);
+      border-radius: 8px;
+    }
+    label {
+      display: inline-block;
+      width: 5em;
+      margin-bottom: 0.5em;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="number"] {
+      width: calc(100% - 5.5em);
+      padding: 0.25em;
+    }
+    .gender-line {
+      margin-bottom: 1em;
+    }
+    button {
+      padding: 0.4em 1em;
+    }
+    .error-msg {
+      color: #f00;
+      font-size: 0.9em;
+      margin: 0.2em 0 0.5em 0;
+    }
+    .error {
+      background: #f99 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="header">Kovács Ferenc, ABC123</div>
+  <img id="bg" src="kep.jpg" alt="illusztráció">
+
+  <form id="regForm" action="feldolgoz.php" method="post" onsubmit="return validateForm()">
+    <div>
+      <label for="email">E-mail:</label>
+      <input type="text" id="email" name="email">
+      <div id="err_email" class="error-msg"></div>
+    </div>
+    <div>
+      <label for="nev">Név:</label>
+      <input type="text" id="nev" name="nev">
+      <div id="err_nev" class="error-msg"></div>
+    </div>
+    <div>
+      <label for="jelszo">Jelszó:</label>
+      <input type="password" id="jelszo" name="jelszo">
+      <div id="err_jelszo" class="error-msg"></div>
+    </div>
+    <div>
+      <label for="kor">Kor:</label>
+      <input type="number" id="kor" name="kor">
+      <div id="err_kor" class="error-msg"></div>
+    </div>
+    <div class="gender-line">
+      <label>Nem:</label>
+      <label><input type="radio" name="nem" value="Nő"> Nő</label>
+      <label><input type="radio" name="nem" value="Férfi"> Férfi</label>
+      <div id="err_nem" class="error-msg"></div>
+    </div>
+    <button type="submit">Küldés</button>
+  </form>
+
+  <script>
+    function validateForm() {
+      // töröljük a korábbi hibákat
+      ['email','nev','jelszo','kor','nem'].forEach(function(f){
+        document.getElementById(f).classList.remove('error');
+        document.getElementById('err_'+f).textContent = '';
+      });
+
+      var ok = true;
+      var e = document.getElementById('email'),
+          n = document.getElementById('nev'),
+          j = document.getElementById('jelszo'),
+          k = document.getElementById('kor'),
+          ns = document.getElementsByName('nem');
+
+      // regex e-mailre
+      var checkPattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+
+      // a) minden mező kötelező
+      if (!e.value.trim()) {
+        markErr(e,'E-mail megadása kötelező');
+        ok = false;
+      } else if (!checkPattern.test(e.value)) {
+        markErr(e,'Hibás e-mail formátum');
+        ok = false;
+      }
+
+      if (!n.value.trim()) {
+        markErr(n,'Név megadása kötelező');
+        ok = false;
+      } else if (n.value.length < 5 || n.value.length > 30) {
+        markErr(n,'Név 5–30 karakter lehet');
+        ok = false;
+      }
+
+      if (!j.value) {
+        markErr(j,'Jelszó megadása kötelező');
+        ok = false;
+      } else if (j.value.length < 6 || j.value.length > 12) {
+        markErr(j,'Jelszó 6–12 karakter lehet');
+        ok = false;
+      }
+
+      if (!k.value) {
+        markErr(k,'Kor megadása kötelező');
+        ok = false;
+      } else {
+        var korSz = parseInt(k.value,10);
+        if (isNaN(korSz) || korSz < 18 || korSz > 100) {
+          markErr(k,'Kor csak 18–100 közötti szám lehet');
+          ok = false;
+        }
+      }
+
+      // nem: minimum egy kiválasztva
+      var nemVal = Array.prototype.slice.call(ns).some(function(r){ return r.checked; });
+      if (!nemVal) {
+        document.getElementById('err_nem').textContent = 'Nem kiválasztása kötelező';
+        ok = false;
+      }
+
+      return ok;
+    }
+
+    function markErr(elem,msg) {
+      elem.classList.add('error');
+      document.getElementById('err_'+elem.id).textContent = 'Hibás adat: '+msg;
+    }
+  </script>
+
+</body>
+</html>
